@@ -1,0 +1,8 @@
+#root {
+  /* Removed max-width, margin, and padding to allow full-width components like Header/Footer */
+  width: 100%;
+  min-height: 100vh;
+  /* Removed text-align: center; for modern, left-aligned content */
+}
+
+/* Removed unneeded styles: .logo, @keyframes, @media logo-spin, .card, .read-the-docs */
