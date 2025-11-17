@@ -1,0 +1,182 @@
+envGroups:
+  - name: plateplanner-secrets
+    vars:
+      - key: SPRING_DATA_MONGODB_URI
+        value: "<SET_IN_RENDER>"
+      - key: SPRING_DATA_MONGODB_DATABASE
+        value: "<SET_IN_RENDER>"
+      - key: GEMINI_API_URL
+        value: "<SET_IN_RENDER>"
+      - key: GEMINI_API_KEY
+        value: "<SET_IN_RENDER>"
+      - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+        value: "<SET_IN_RENDER>"
+      - key: RAZORPAY_API_KEY_ID
+        value: "<SET_IN_RENDER>"
+      - key: RAZORPAY_API_KEY_SECRET
+        value: "<SET_IN_RENDER>"
+      - key: RAZORPAY_WEBHOOK_SECRET
+        value: "<SET_IN_RENDER>"
+      - key: KEYCLOAK_BASE_URL
+        value: "<SET_IN_RENDER>"
+      - key: KEYCLOAK_REALM
+        value: "<SET_IN_RENDER>"
+      - key: KEYCLOAK_CLIENT_ID
+        value: "<SET_IN_RENDER>"
+      - key: KEYCLOAK_CLIENT_SECRET
+        value: "<SET_IN_RENDER>"
+
+services:
+  # ----------------------------------------------------------------
+  # 1) Eureka Server (Deploy FIRST)
+  # ----------------------------------------------------------------
+  - type: private_service
+    name: eurekaserver
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: eurekaserver
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVars:
+      SPRING_APPLICATION_NAME: eurekaserver
+      # (Eureka server does not need the Eureka URL)
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - eurekaserver/**
+
+  # ----------------------------------------------------------------
+  # 2) API Gateway (Public service)
+  # ----------------------------------------------------------------
+  - type: web
+    name: apigateway
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: apigateway
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: apigateway
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - apigateway/**
+
+  # ----------------------------------------------------------------
+  # 3) Userservice
+  # ----------------------------------------------------------------
+  - type: private_service
+    name: userservice
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: userservice
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: userservice
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - userservice/**
+
+  # ----------------------------------------------------------------
+  # 4) Recipeservice
+  # ----------------------------------------------------------------
+  - type: private_service
+    name: recipeservice
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: recipeservice
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: recipeservice
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - recipeservice/**
+
+  # ----------------------------------------------------------------
+  # 5) AI Service
+  # ----------------------------------------------------------------
+  - type: private_service
+    name: aiservice
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: aiservice
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: aiservice
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - aiservice/**
+
+  # ----------------------------------------------------------------
+  # 6) Payment Service
+  # ----------------------------------------------------------------
+  - type: private_service
+    name: paymentservice
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: paymentservice
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: paymentservice
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - paymentservice/**
+
+  # ----------------------------------------------------------------
+  # 7) Recipe Intelligence Service
+  # ----------------------------------------------------------------
+  - type: private_service
+    name: recipeintelligenceservice
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: recipeintelligenceservice
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: recipeintelligenceservice
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - recipeintelligenceservice/**
+
+# ----------------------------------------------------------------
+# 8) Frontend (Vite React App)
+# ----------------------------------------------------------------
+staticSites:
+  - name: frontend
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: frontend/plateplannerfrontend
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    envVars: {}     # All VITE_ variables added in Render dashboard
+    autoDeploy: true
+    includedPaths:
+      - frontend/**
