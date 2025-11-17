@@ -5,9 +5,9 @@ envGroups:
         value: "<SET_IN_RENDER>"
       - key: SPRING_DATA_MONGODB_DATABASE
         value: "<SET_IN_RENDER>"
-      - key: GEMINI_API_URL
-        value: "<SET_IN_RENDER>"
       - key: GEMINI_API_KEY
+        value: "<SET_IN_RENDER>"
+      - key: GEMINI_API_URL
         value: "<SET_IN_RENDER>"
       - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
         value: "<SET_IN_RENDER>"
@@ -26,57 +26,40 @@ envGroups:
       - key: KEYCLOAK_CLIENT_SECRET
         value: "<SET_IN_RENDER>"
 
+# --------------------------------------------------------------
+# INTERNAL MICROSERVICES (web_service but internal-only)
+# --------------------------------------------------------------
+
 services:
-  # ----------------------------------------------------------------
-  # 1) Eureka Server (Deploy FIRST)
-  # ----------------------------------------------------------------
-  - type: private_service
+  - type: web_service
     name: eurekaserver
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: eurekaserver
     plan: starter
+    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
+    internalPorts:
+      - 8761
     envVars:
       SPRING_APPLICATION_NAME: eurekaserver
-      # (Eureka server does not need the Eureka URL)
     healthCheckPath: /actuator/health
     autoDeploy: true
     includedPaths:
       - eurekaserver/**
 
-  # ----------------------------------------------------------------
-  # 2) API Gateway (Public service)
-  # ----------------------------------------------------------------
-  - type: web
-    name: apigateway
-    repo: https://github.com/SanskrutiNijai/plateplanner
-    branch: main
-    rootDir: apigateway
-    plan: starter
-    buildCommand: ./mvnw -DskipTests package
-    startCommand: java -jar target/*.jar
-    envVarGroups:
-      - plateplanner-secrets
-    envVars:
-      SPRING_APPLICATION_NAME: apigateway
-    healthCheckPath: /actuator/health
-    autoDeploy: true
-    includedPaths:
-      - apigateway/**
-
-  # ----------------------------------------------------------------
-  # 3) Userservice
-  # ----------------------------------------------------------------
-  - type: private_service
+  - type: web_service
     name: userservice
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: userservice
     plan: starter
+    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
+    internalPorts:
+      - 8081
     envVarGroups:
       - plateplanner-secrets
     envVars:
@@ -86,17 +69,17 @@ services:
     includedPaths:
       - userservice/**
 
-  # ----------------------------------------------------------------
-  # 4) Recipeservice
-  # ----------------------------------------------------------------
-  - type: private_service
+  - type: web_service
     name: recipeservice
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: recipeservice
     plan: starter
+    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
+    internalPorts:
+      - 8082
     envVarGroups:
       - plateplanner-secrets
     envVars:
@@ -106,17 +89,17 @@ services:
     includedPaths:
       - recipeservice/**
 
-  # ----------------------------------------------------------------
-  # 5) AI Service
-  # ----------------------------------------------------------------
-  - type: private_service
+  - type: web_service
     name: aiservice
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: aiservice
     plan: starter
+    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
+    internalPorts:
+      - 8083
     envVarGroups:
       - plateplanner-secrets
     envVars:
@@ -126,17 +109,17 @@ services:
     includedPaths:
       - aiservice/**
 
-  # ----------------------------------------------------------------
-  # 6) Payment Service
-  # ----------------------------------------------------------------
-  - type: private_service
+  - type: web_service
     name: paymentservice
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: paymentservice
     plan: starter
+    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
+    internalPorts:
+      - 8084
     envVarGroups:
       - plateplanner-secrets
     envVars:
@@ -146,17 +129,17 @@ services:
     includedPaths:
       - paymentservice/**
 
-  # ----------------------------------------------------------------
-  # 7) Recipe Intelligence Service
-  # ----------------------------------------------------------------
-  - type: private_service
+  - type: web_service
     name: recipeintelligenceservice
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: recipeintelligenceservice
     plan: starter
+    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
+    internalPorts:
+      - 8085
     envVarGroups:
       - plateplanner-secrets
     envVars:
@@ -166,9 +149,31 @@ services:
     includedPaths:
       - recipeintelligenceservice/**
 
-# ----------------------------------------------------------------
-# 8) Frontend (Vite React App)
-# ----------------------------------------------------------------
+  # --------------------------------------------------------------
+  # PUBLIC API GATEWAY (exposed)
+  # --------------------------------------------------------------
+  - type: web_service
+    name: apigateway
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: apigateway
+    plan: starter
+    env: dockerless
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    # PUBLIC → no internalPorts
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: apigateway
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - apigateway/**
+
+# --------------------------------------------------------------
+# PUBLIC FRONTEND (Vite React)
+# --------------------------------------------------------------
 staticSites:
   - name: frontend
     repo: https://github.com/SanskrutiNijai/plateplanner
@@ -176,7 +181,7 @@ staticSites:
     rootDir: frontend/plateplannerfrontend
     buildCommand: npm ci && npm run build
     publishPath: dist
-    envVars: {}     # All VITE_ variables added in Render dashboard
+    envVars: {}   # You will add VITE_ variables in dashboard
     autoDeploy: true
     includedPaths:
       - frontend/**
