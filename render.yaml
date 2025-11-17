@@ -1,8 +1,9 @@
-# render.yaml - PlatePlanner Microservices Deployment (FINAL + VALID)
+previews:
+  generation: automatic
 
-envGroups:
+envVarGroups:
   - name: plateplanner-secrets
-    vars:
+    envVars:
       - key: SPRING_DATA_MONGODB_URI
         value: "<SET_IN_RENDER>"
       - key: SPRING_DATA_MONGODB_DATABASE
@@ -33,160 +34,158 @@ services:
   # -------------------------------------------------------------
   # EUREKA SERVER (INTERNAL)
   # -------------------------------------------------------------
-  - name: eurekaserver
-    type: web_service
+  - type: web
+    name: eurekaserver
+    runtime: docker
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: eurekaserver
     branch: main
     plan: starter
-    env: docker
     buildCommand: "./mvnw -DskipTests package"
     startCommand: "java -jar target/*.jar"
-    internal_port: 8761
+    internalPort: 8761
     envVars:
-      SPRING_APPLICATION_NAME: eurekaserver
-    autoDeploy: true
+      - key: SPRING_APPLICATION_NAME
+        value: eurekaserver
     includedPaths:
       - eurekaserver/**
 
   # -------------------------------------------------------------
   # API GATEWAY (PUBLIC)
   # -------------------------------------------------------------
-  - name: apigateway
-    type: web_service
+  - type: web
+    name: apigateway
+    runtime: docker
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: apigateway
     branch: main
     plan: starter
-    env: docker
     buildCommand: "./mvnw -DskipTests package"
     startCommand: "java -jar target/*.jar"
     port: 8086
     envVarGroups:
       - plateplanner-secrets
     envVars:
-      SPRING_APPLICATION_NAME: apigateway
-    autoDeploy: true
+      - key: SPRING_APPLICATION_NAME
+        value: apigateway
     includedPaths:
       - apigateway/**
 
   # -------------------------------------------------------------
   # USERSERVICE (INTERNAL)
   # -------------------------------------------------------------
-  - name: userservice
-    type: web_service
+  - type: web
+    name: userservice
+    runtime: docker
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: userservice
     branch: main
     plan: starter
-    env: docker
     buildCommand: "./mvnw -DskipTests package"
     startCommand: "java -jar target/*.jar"
-    internal_port: 8081
+    internalPort: 8081
     envVarGroups:
       - plateplanner-secrets
     envVars:
-      SPRING_APPLICATION_NAME: userservice
-    autoDeploy: true
+      - key: SPRING_APPLICATION_NAME
+        value: userservice
     includedPaths:
       - userservice/**
 
   # -------------------------------------------------------------
   # RECIPESERVICE (INTERNAL)
   # -------------------------------------------------------------
-  - name: recipeservice
-    type: web_service
+  - type: web
+    name: recipeservice
+    runtime: docker
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: recipeservice
     branch: main
     plan: starter
-    env: docker
     buildCommand: "./mvnw -DskipTests package"
     startCommand: "java -jar target/*.jar"
-    internal_port: 8082
+    internalPort: 8082
     envVarGroups:
       - plateplanner-secrets
     envVars:
-      SPRING_APPLICATION_NAME: recipeservice
-    autoDeploy: true
+      - key: SPRING_APPLICATION_NAME
+        value: recipeservice
     includedPaths:
       - recipeservice/**
 
   # -------------------------------------------------------------
   # AISERVICE (INTERNAL)
   # -------------------------------------------------------------
-  - name: aiservice
-    type: web_service
+  - type: web
+    name: aiservice
+    runtime: docker
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: aiservice
     branch: main
     plan: starter
-    env: docker
     buildCommand: "./mvnw -DskipTests package"
     startCommand: "java -jar target/*.jar"
-    internal_port: 8083
+    internalPort: 8083
     envVarGroups:
       - plateplanner-secrets
     envVars:
-      SPRING_APPLICATION_NAME: aiservice
-    autoDeploy: true
+      - key: SPRING_APPLICATION_NAME
+        value: aiservice
     includedPaths:
       - aiservice/**
 
   # -------------------------------------------------------------
   # PAYMENTSERVICE (INTERNAL)
   # -------------------------------------------------------------
-  - name: paymentservice
-    type: web_service
+  - type: web
+    name: paymentservice
+    runtime: docker
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: paymentservice
     branch: main
     plan: starter
-    env: docker
     buildCommand: "./mvnw -DskipTests package"
     startCommand: "java -jar target/*.jar"
-    internal_port: 8084
+    internalPort: 8084
     envVarGroups:
       - plateplanner-secrets
     envVars:
-      SPRING_APPLICATION_NAME: paymentservice
-    autoDeploy: true
+      - key: SPRING_APPLICATION_NAME
+        value: paymentservice
     includedPaths:
       - paymentservice/**
 
   # -------------------------------------------------------------
   # RECIPE INTELLIGENCE SERVICE (INTERNAL)
   # -------------------------------------------------------------
-  - name: recipeintelligenceservice
-    type: web_service
+  - type: web
+    name: recipeintelligenceservice
+    runtime: docker
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: recipeintelligenceservice
     branch: main
     plan: starter
-    env: docker
     buildCommand: "./mvnw -DskipTests package"
     startCommand: "java -jar target/*.jar"
-    internal_port: 8085
+    internalPort: 8085
     envVarGroups:
       - plateplanner-secrets
     envVars:
-      SPRING_APPLICATION_NAME: recipeintelligenceservice
-    autoDeploy: true
+      - key: SPRING_APPLICATION_NAME
+        value: recipeintelligenceservice
     includedPaths:
       - recipeintelligenceservice/**
 
-# -------------------------------------------------------------
-# FRONTEND STATIC SITE (PUBLIC)
-# -------------------------------------------------------------
-staticSites:
-  - name: frontend
-    type: static_site
+  # -------------------------------------------------------------
+  # FRONTEND STATIC SITE (PUBLIC)
+  # -------------------------------------------------------------
+  - type: web
+    name: frontend
+    runtime: static
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: frontend/plateplannerfrontend
     branch: main
     buildCommand: "npm ci && npm run build"
-    publishPath: dist
-    envVars: {}
-    autoDeploy: true
+    staticPublishPath: dist
     includedPaths:
       - frontend/**
