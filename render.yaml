@@ -26,18 +26,17 @@ envGroups:
       - key: KEYCLOAK_CLIENT_SECRET
         value: "<SET_IN_RENDER>"
 
-# --------------------------------------------------------------
-# INTERNAL MICROSERVICES (web_service but internal-only)
-# --------------------------------------------------------------
-
 services:
-  - type: web_service
+  # -------------------------------------------------------------
+  # 1) EUREKA SERVER  (internal only)
+  # -------------------------------------------------------------
+  - type: service
     name: eurekaserver
+    env: dockerless
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: eurekaserver
     plan: starter
-    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
     internalPorts:
@@ -49,13 +48,38 @@ services:
     includedPaths:
       - eurekaserver/**
 
-  - type: web_service
+  # -------------------------------------------------------------
+  # 2) API GATEWAY (PUBLIC)
+  # -------------------------------------------------------------
+  - type: service
+    name: apigateway
+    env: dockerless
+    repo: https://github.com/SanskrutiNijai/plateplanner
+    branch: main
+    rootDir: apigateway
+    plan: starter
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    envVarGroups:
+      - plateplanner-secrets
+    envVars:
+      SPRING_APPLICATION_NAME: apigateway
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    includedPaths:
+      - apigateway/**
+    # No internalPorts → service is PUBLIC
+
+  # -------------------------------------------------------------
+  # 3) USERSERVICE (internal)
+  # -------------------------------------------------------------
+  - type: service
     name: userservice
+    env: dockerless
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: userservice
     plan: starter
-    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
     internalPorts:
@@ -69,13 +93,16 @@ services:
     includedPaths:
       - userservice/**
 
-  - type: web_service
+  # -------------------------------------------------------------
+  # 4) RECIPESERVICE (internal)
+  # -------------------------------------------------------------
+  - type: service
     name: recipeservice
+    env: dockerless
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: recipeservice
     plan: starter
-    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
     internalPorts:
@@ -89,13 +116,16 @@ services:
     includedPaths:
       - recipeservice/**
 
-  - type: web_service
+  # -------------------------------------------------------------
+  # 5) AISERVICE (internal)
+  # -------------------------------------------------------------
+  - type: service
     name: aiservice
+    env: dockerless
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: aiservice
     plan: starter
-    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
     internalPorts:
@@ -109,13 +139,16 @@ services:
     includedPaths:
       - aiservice/**
 
-  - type: web_service
+  # -------------------------------------------------------------
+  # 6) PAYMENTSERVICE (internal)
+  # -------------------------------------------------------------
+  - type: service
     name: paymentservice
+    env: dockerless
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: paymentservice
     plan: starter
-    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
     internalPorts:
@@ -129,13 +162,16 @@ services:
     includedPaths:
       - paymentservice/**
 
-  - type: web_service
+  # -------------------------------------------------------------
+  # 7) RECIPE INTELLIGENCE SERVICE (internal)
+  # -------------------------------------------------------------
+  - type: service
     name: recipeintelligenceservice
+    env: dockerless
     repo: https://github.com/SanskrutiNijai/plateplanner
     branch: main
     rootDir: recipeintelligenceservice
     plan: starter
-    env: dockerless
     buildCommand: ./mvnw -DskipTests package
     startCommand: java -jar target/*.jar
     internalPorts:
@@ -149,31 +185,9 @@ services:
     includedPaths:
       - recipeintelligenceservice/**
 
-  # --------------------------------------------------------------
-  # PUBLIC API GATEWAY (exposed)
-  # --------------------------------------------------------------
-  - type: web_service
-    name: apigateway
-    repo: https://github.com/SanskrutiNijai/plateplanner
-    branch: main
-    rootDir: apigateway
-    plan: starter
-    env: dockerless
-    buildCommand: ./mvnw -DskipTests package
-    startCommand: java -jar target/*.jar
-    # PUBLIC → no internalPorts
-    envVarGroups:
-      - plateplanner-secrets
-    envVars:
-      SPRING_APPLICATION_NAME: apigateway
-    healthCheckPath: /actuator/health
-    autoDeploy: true
-    includedPaths:
-      - apigateway/**
-
-# --------------------------------------------------------------
-# PUBLIC FRONTEND (Vite React)
-# --------------------------------------------------------------
+# -------------------------------------------------------------
+# 8) FRONTEND (Vite React App — public static site)
+# -------------------------------------------------------------
 staticSites:
   - name: frontend
     repo: https://github.com/SanskrutiNijai/plateplanner
@@ -181,7 +195,7 @@ staticSites:
     rootDir: frontend/plateplannerfrontend
     buildCommand: npm ci && npm run build
     publishPath: dist
-    envVars: {}   # You will add VITE_ variables in dashboard
+    envVars: {}  # VITE_ variables added in Dashboard
     autoDeploy: true
     includedPaths:
       - frontend/**
