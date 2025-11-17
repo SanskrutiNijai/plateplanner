@@ -30,7 +30,6 @@ envVarGroups:
         value: "<SET_IN_RENDER>"
 
 services:
-
   # -------------------------------------------------------------
   # EUREKA SERVER (INTERNAL)
   # -------------------------------------------------------------
@@ -41,17 +40,18 @@ services:
     rootDir: eurekaserver
     branch: main
     plan: starter
-    buildCommand: "./mvnw -DskipTests package"
-    startCommand: "java -jar target/*.jar"
-    internalPort: 8761
+    private: true
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
+    port: 8761
     envVars:
       - key: SPRING_APPLICATION_NAME
         value: eurekaserver
-    includedPaths:
-      - eurekaserver/**
+      - key: PORT
+        value: "8761"
 
   # -------------------------------------------------------------
-  # API GATEWAY (PUBLIC)
+  # API GATEWAY (PUBLIC SERVICE)
   # -------------------------------------------------------------
   - type: web
     name: apigateway
@@ -60,16 +60,17 @@ services:
     rootDir: apigateway
     branch: main
     plan: starter
-    buildCommand: "./mvnw -DskipTests package"
-    startCommand: "java -jar target/*.jar"
+    private: false
     port: 8086
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
     envVarGroups:
       - plateplanner-secrets
     envVars:
       - key: SPRING_APPLICATION_NAME
         value: apigateway
-    includedPaths:
-      - apigateway/**
+      - key: PORT
+        value: "8086"
 
   # -------------------------------------------------------------
   # USERSERVICE (INTERNAL)
@@ -81,16 +82,17 @@ services:
     rootDir: userservice
     branch: main
     plan: starter
-    buildCommand: "./mvnw -DskipTests package"
-    startCommand: "java -jar target/*.jar"
-    internalPort: 8081
+    private: true
+    port: 8081
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
     envVarGroups:
       - plateplanner-secrets
     envVars:
       - key: SPRING_APPLICATION_NAME
         value: userservice
-    includedPaths:
-      - userservice/**
+      - key: PORT
+        value: "8081"
 
   # -------------------------------------------------------------
   # RECIPESERVICE (INTERNAL)
@@ -102,16 +104,17 @@ services:
     rootDir: recipeservice
     branch: main
     plan: starter
-    buildCommand: "./mvnw -DskipTests package"
-    startCommand: "java -jar target/*.jar"
-    internalPort: 8082
+    private: true
+    port: 8082
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
     envVarGroups:
       - plateplanner-secrets
     envVars:
       - key: SPRING_APPLICATION_NAME
         value: recipeservice
-    includedPaths:
-      - recipeservice/**
+      - key: PORT
+        value: "8082"
 
   # -------------------------------------------------------------
   # AISERVICE (INTERNAL)
@@ -123,16 +126,17 @@ services:
     rootDir: aiservice
     branch: main
     plan: starter
-    buildCommand: "./mvnw -DskipTests package"
-    startCommand: "java -jar target/*.jar"
-    internalPort: 8083
+    private: true
+    port: 8083
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
     envVarGroups:
       - plateplanner-secrets
     envVars:
       - key: SPRING_APPLICATION_NAME
         value: aiservice
-    includedPaths:
-      - aiservice/**
+      - key: PORT
+        value: "8083"
 
   # -------------------------------------------------------------
   # PAYMENTSERVICE (INTERNAL)
@@ -144,16 +148,17 @@ services:
     rootDir: paymentservice
     branch: main
     plan: starter
-    buildCommand: "./mvnw -DskipTests package"
-    startCommand: "java -jar target/*.jar"
-    internalPort: 8084
+    private: true
+    port: 8084
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
     envVarGroups:
       - plateplanner-secrets
     envVars:
       - key: SPRING_APPLICATION_NAME
         value: paymentservice
-    includedPaths:
-      - paymentservice/**
+      - key: PORT
+        value: "8084"
 
   # -------------------------------------------------------------
   # RECIPE INTELLIGENCE SERVICE (INTERNAL)
@@ -165,16 +170,17 @@ services:
     rootDir: recipeintelligenceservice
     branch: main
     plan: starter
-    buildCommand: "./mvnw -DskipTests package"
-    startCommand: "java -jar target/*.jar"
-    internalPort: 8085
+    private: true
+    port: 8085
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/*.jar
     envVarGroups:
       - plateplanner-secrets
     envVars:
       - key: SPRING_APPLICATION_NAME
         value: recipeintelligenceservice
-    includedPaths:
-      - recipeintelligenceservice/**
+      - key: PORT
+        value: "8085"
 
   # -------------------------------------------------------------
   # FRONTEND STATIC SITE (PUBLIC)
@@ -185,7 +191,6 @@ services:
     repo: https://github.com/SanskrutiNijai/plateplanner
     rootDir: frontend/plateplannerfrontend
     branch: main
-    buildCommand: "npm ci && npm run build"
+    buildCommand: npm ci && npm run build
     staticPublishPath: dist
-    includedPaths:
-      - frontend/**
+    envVars: {}
