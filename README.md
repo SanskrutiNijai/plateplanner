@@ -64,7 +64,7 @@ Prerequisites
 Backend (Microservices)
 1. Clone the Repository:
 ```bash
-git clone [https://github.com/SanskrutiNijai/plateplanner.git](https://github.com/SanskrutiNijai/plateplanner.git)
+git clone https://github.com/SanskrutiNijai/plateplanner.git
 cd plateplanner
 ```
 
