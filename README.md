@@ -62,18 +62,7 @@ Prerequisites
 - Razorpay API Keys
 
 Backend (Microservices)
-1. Clone the Repository:
-```bash
-git clone https://github.com/SanskrutiNijai/plateplanner.git
-cd plateplanner
-```
-
-2. Configure Environment Variables:
-Update the ```.env``` or ```application.yml``` files for each microservice with your Keycloak, MongoDB, Gemini, and Razorpay credentials.
-
-3. Run with Docker Compose (Recommended):
-```docker-compose up --build```
-This command will build and run all 7 services and Keycloak/MongoDB.
+To run the application, you must first ensure all 7 Spring Boot microservices ```(EurekaServer, ApiGateway, UserService, RecipeService, AIService, PaymentService, RecipeIntelligenceService)``` are built and running. This typically requires configuring environment variables and executing the resulting ```.jar``` files in separate terminal windows.
 
 Frontend (React)
 
